@@ -12,6 +12,8 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     // 단방향 해시 암호화를 위한 BCryptPasswordEncoder를 빈으로 등록
+    /*PasswordEncoder를 BCryptPasswordEncoder로 빈 등록했으므로
+    검증 과정에서도 자동으로 BCryptPasswordEncoder 사용*/
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
@@ -20,7 +22,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
 
-        // 접근 권한 설정 (인가)
+        // 접근 권한 설정 (인증, 인가)
         http
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/", "/login", "/loginProc", "/join", "/joinProc").permitAll()
@@ -30,6 +32,8 @@ public class SecurityConfig {
                 );
 
         // 커스텀 로그인 설정
+        // /loginProc post 요청 처리 부분은 필터가 받아서 처리한다 -> 따라서 컨트롤러는 필요하지 않다
+        // 정확히는 UsernamePasswordAuthenticationFilter
         http
                 .formLogin((auth) -> auth
                         .loginPage("/login")
