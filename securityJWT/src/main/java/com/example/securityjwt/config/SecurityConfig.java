@@ -1,5 +1,6 @@
 package com.example.securityjwt.config;
 
+import com.example.securityjwt.jwt.JWTFilter;
 import com.example.securityjwt.jwt.JWTUtil;
 import com.example.securityjwt.jwt.LoginFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,6 +68,10 @@ public class SecurityConfig {
         http
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        // JWTFilter 등록
+        http
+                .addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
 
         // LoginFilter 등록
         http
