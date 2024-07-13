@@ -1,5 +1,6 @@
 package com.example.securityjwt.config;
 
+import com.example.securityjwt.jwt.JWTUtil;
 import com.example.securityjwt.jwt.LoginFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -20,8 +21,12 @@ public class SecurityConfig {
     // AuthenticationManager가 인자로 받을 AuthenticationConfiguration 객체 생성자 주입
     private final AuthenticationConfiguration authenticationConfiguration;
 
-    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration) {
+    // LoginFilter 필터 등록시 인자로 필요한 JWTUtil 추가
+    private final JWTUtil jwtUtil;
+
+    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil) {
         this.authenticationConfiguration = authenticationConfiguration;
+        this.jwtUtil = jwtUtil;
     }
 
     // AuthenticationManager 빈 등록
@@ -31,7 +36,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder(){
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
 
         return new BCryptPasswordEncoder();
     }
@@ -41,7 +46,7 @@ public class SecurityConfig {
 
         // csrf disable
         http
-                .csrf((auth)-> auth.disable());
+                .csrf((auth) -> auth.disable());
 
         // form 로그인 방식 disable
         http
@@ -60,12 +65,12 @@ public class SecurityConfig {
 
         // 세션 설정: jwt에서는 stateless로 관리
         http
-                .sessionManagement((session)->session
+                .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         // LoginFilter 등록
         http
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration)), UsernamePasswordAuthenticationFilter.class);
+                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
