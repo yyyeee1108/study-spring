@@ -20,9 +20,7 @@ public class JoinController {
 
     @PostMapping("/join")
     public String joinProcess(JoinDTO joinDTO) {
-
         joinService.joinProcess(joinDTO);
-
         return "200 OK";
     }
 }

@@ -4,6 +4,7 @@ import com.example.securityjwt.dto.CustomUserDetails;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -45,21 +46,23 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     // 로그인 성공시 실행 메서드 -> JWT 발급
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) {
-        // username 뽑아내기
-        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-        String username = customUserDetails.getUsername();
 
-        // role 뽑아내기
+        // 유저 정보 뽑아내기 - username, role
+        String username = authentication.getName();
+
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
         GrantedAuthority auth = iterator.next();
         String role = auth.getAuthority();
 
-        // JWT 토큰 생성
-        String token = jwtUtil.createJwt(username, role, 60 * 60 * 100L);
+        // 액세스, 리프레시 토큰 생성
+        String access = jwtUtil.createJwt("access", username, role, 600000L);
+        String refresh = jwtUtil.createJwt("refresh", username, role, 86400000L);
 
-        // header에 추가
-        response.addHeader("Authorization", "Bearer " + token);
+        // response 설정
+        response.setHeader("access", access);
+        response.setHeader("refresh", refresh);
+        response.setStatus(HttpStatus.OK.value());
 
     }
 
