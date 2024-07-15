@@ -54,15 +54,33 @@ public class ReissueController {
             return new ResponseEntity<>("invalid refresh token", HttpStatus.BAD_REQUEST);
         }
 
-        // 새로운 액세스 토큰을 만들어 준다
+        // 토큰 만들기 과정
         String username = jwtUtil.getUsername(refreshToken);
         String role = jwtUtil.getRole(refreshToken);
 
+        // 새로운 액세스 토큰을 만들어 준다
         String newAccessToken = jwtUtil.createJwt("access", username, role, 600000L);
+
+        // 새로운 리프레시 토큰을 만들어준다
+        String newRefreshToken = jwtUtil.createJwt("refresh", username, role, 86400000L);
 
         // 응답 헤더 중 "Authorization" 헤더에 새 액세스 토큰을 담는다
         response.setHeader("Authorization", "Bearer " + newAccessToken);
 
+        // 쿠키에 새 리프레시 토큰을 담아보낸다
+        response.addCookie(createCookie("refresh", newRefreshToken));
+
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    private Cookie createCookie(String key, String value) {
+
+        Cookie cookie = new Cookie(key, value);
+        cookie.setMaxAge(24 * 60 * 60);
+        //cookie.setSecure(true);
+        //cookie.setPath("/");
+        cookie.setHttpOnly(true);
+
+        return cookie;
     }
 }
