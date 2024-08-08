@@ -2,6 +2,7 @@ package hello.core.singleton;
 
 import hello.core.AppConfig;
 import hello.core.member.MemberRepository;
+import hello.core.member.MemberService;
 import hello.core.member.MemberServiceImpl;
 import hello.core.order.OrderServiceImpl;
 import org.assertj.core.api.Assertions;
