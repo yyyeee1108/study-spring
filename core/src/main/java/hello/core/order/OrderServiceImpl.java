@@ -14,11 +14,17 @@ public class OrderServiceImpl implements OrderService {
 
 //    private final DiscountPolicy discountPolicy = new FixDiscountPolicy(); // ver1. 처음 기획에 따라 고정 금액 정책으로 개발
 //    private final DiscountPolicy discountPolicy = new RateDiscountPolicy(); // ver2. 바뀐 기획에 따라 정률 정책으로 개발. DIP, OCP 위반
-    private final MemberRepository memberRepository;
-    private final DiscountPolicy discountPolicy; // DIP 가능하게 한다 (인터페이스에만 의존)
+    private MemberRepository memberRepository;
+    private DiscountPolicy discountPolicy; // DIP 가능하게 한다 (인터페이스에만 의존)
 
-    @Autowired
+    @Autowired // 기본적으로 @Autowired는 주입할 대상이 없으면 오류가 발생한다
     public OrderServiceImpl(MemberRepository memberRepository, DiscountPolicy discountPolicy) {
+        this.memberRepository = memberRepository;
+        this.discountPolicy = discountPolicy;
+    }
+
+    @Autowired // 일반 메서드 의존관계 주입
+    public void init(MemberRepository memberRepository, DiscountPolicy discountPolicy) {
         this.memberRepository = memberRepository;
         this.discountPolicy = discountPolicy;
     }
